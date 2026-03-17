@@ -113,11 +113,7 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
 
 function Spinner() {
   return (
-    <svg
-      className="animate-spin h-3.5 w-3.5"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
+    <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
       <circle
         className="opacity-25"
         cx="12"
@@ -137,7 +133,12 @@ function Spinner() {
 
 function DownloadIcon() {
   return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg
+      className="w-4 h-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -150,8 +151,18 @@ function DownloadIcon() {
 
 function CheckIcon() {
   return (
-    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    <svg
+      className="w-4 h-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5 13l4 4L19 7"
+      />
     </svg>
   );
 }

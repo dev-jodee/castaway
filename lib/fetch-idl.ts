@@ -50,7 +50,9 @@ export async function fetchIdl(
 ): Promise<unknown> {
   // Validate it looks like a base58 address
   if (!programId || programId.length < 32 || programId.length > 44) {
-    throw new Error("Invalid program ID. Must be a valid Solana base58 address.");
+    throw new Error(
+      "Invalid program ID. Must be a valid Solana base58 address."
+    );
   }
 
   const rpc = createSolanaRpc(rpcUrl);

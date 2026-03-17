@@ -29,11 +29,7 @@ export const LANGUAGES: { id: Language; label: string; description: string }[] =
     },
   ];
 
-function collectFiles(
-  zip: JSZip,
-  dirPath: string,
-  basePath: string
-): void {
+function collectFiles(zip: JSZip, dirPath: string, basePath: string): void {
   const entries = fs.readdirSync(dirPath);
   for (const entry of entries) {
     const fullPath = path.join(dirPath, entry);

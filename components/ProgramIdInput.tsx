@@ -46,9 +46,7 @@ export function ProgramIdInput({
           )}
         </button>
       </div>
-      {error && (
-        <p className="text-red-400 text-xs px-1">{error}</p>
-      )}
+      {error && <p className="text-red-400 text-xs px-1">{error}</p>}
     </div>
   );
 }

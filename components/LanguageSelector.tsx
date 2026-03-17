@@ -7,7 +7,10 @@ interface LanguageSelectorProps {
   onChange: (lang: Language) => void;
 }
 
-export function LanguageSelector({ selected, onChange }: LanguageSelectorProps) {
+export function LanguageSelector({
+  selected,
+  onChange,
+}: LanguageSelectorProps) {
   return (
     <div className="flex gap-2">
       {LANGUAGES.map((lang) => (
