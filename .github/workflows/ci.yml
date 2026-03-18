@@ -1,10 +1,20 @@
-name: CI
+name: CI / Deploy
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: preview
+        type: choice
+        options:
+          - preview
+          - production
 
 jobs:
   check:
@@ -33,3 +43,37 @@ jobs:
 
       - name: Build (Next.js)
         run: npm run build
+
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: check
+    # Skip deploy on PRs — only run on push to main or manual dispatch
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Push to main always goes straight to production
+      - name: Deploy to production
+        if: github.event_name == 'push' || inputs.environment == 'production'
+        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # Manual dispatch with "preview" deploys to preview
+      - name: Deploy preview
+        if: inputs.environment == 'preview'
+        run: npx vercel --token ${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

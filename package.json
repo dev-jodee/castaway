@@ -1,6 +1,8 @@
 {
-  "name": "castaway-next",
+  "name": "castaway",
   "version": "0.1.0",
+  "author": "dev-jodee",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,12 +18,10 @@
     "@solana/kit": "^6.3.1",
     "codama": "^1.5.1",
     "jszip": "^3.10.1",
-    "memfs": "^4.56.11",
-    "next": "16.1.6",
+    "next": "^16.1.7",
     "pako": "^2.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-json-view-lite": "^2.5.0",
     "shiki": "^4.0.2"
   },
   "devDependencies": {
@@ -31,7 +31,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "16.1.7",
     "prettier": "^3",
     "tailwindcss": "^4",
     "typescript": "^5"

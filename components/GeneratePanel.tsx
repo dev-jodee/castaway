@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Language } from "@/lib/codama-generate";
+import { Language } from "@/lib/codama-types";
 import { LanguageSelector } from "./LanguageSelector";
 
 interface GeneratePanelProps {
@@ -67,7 +67,7 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
         <LanguageSelector selected={language} onChange={setLanguage} />
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-center gap-3">
         <button
           onClick={handleGenerate}
           disabled={generating}
@@ -107,7 +107,94 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
           the generated client files for the selected language.
         </p>
       </div>
+
+      {/* Next steps */}
+      <div className="border border-zinc-800 rounded-lg overflow-hidden">
+        <div className="px-4 py-3 bg-zinc-800/40 border-b border-zinc-800">
+          <h3 className="text-xs font-semibold text-zinc-300">
+            What to do with the generated files
+          </h3>
+        </div>
+        <div className="p-4 space-y-3 text-xs text-zinc-400">
+          {language === "typescript" && (
+            <>
+              <Step n={1} text="Unzip the download and copy the files into your project (e.g. src/generated/)." />
+              <Step n={2} text="Install the required dependency:">
+                <Code>npm install @solana/kit</Code>
+              </Step>
+              <Step n={3} text="Import the generated helpers and use them in your code:">
+                <Code>{`import { get${capitalize(programName)}InstructionAccounts } from './generated';`}</Code>
+              </Step>
+              <p className="text-zinc-600 pt-1">
+                Generated with <span className="text-zinc-500">@solana/kit</span> (web3.js v2). The files are plain TypeScript — no build step required before importing.
+              </p>
+            </>
+          )}
+          {language === "typescript-umi" && (
+            <>
+              <Step n={1} text="Unzip the download and copy the files into your project (e.g. src/generated/)." />
+              <Step n={2} text="Install the required dependencies:">
+                <Code>npm install @metaplex-foundation/umi @metaplex-foundation/umi-bundle-defaults</Code>
+              </Step>
+              <Step n={3} text="Set up a Umi instance and import the generated plugin:">
+                <Code>{`import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';\nimport { ${programName}() } from './generated';\n\nconst umi = createUmi(rpcUrl).use(${programName}());`}</Code>
+              </Step>
+              <p className="text-zinc-600 pt-1">
+                Generated for the <span className="text-zinc-500">Metaplex Umi</span> framework. Best suited for NFT and Metaplex ecosystem programs.
+              </p>
+            </>
+          )}
+          {language === "rust" && (
+            <>
+              <Step n={1} text="Unzip the download and place the files inside your crate (e.g. src/generated/)." />
+              <Step n={2} text="Declare the module in your crate root (src/lib.rs or src/main.rs):">
+                <Code>mod generated;</Code>
+              </Step>
+              <Step n={3} text="Add any required Solana dependencies to your Cargo.toml:">
+                <Code>{`[dependencies]\nsolana-program = "2"`}</Code>
+              </Step>
+              <Step n={4} text="Import and use the generated types and instructions:">
+                <Code>{`use crate::generated::instructions::*;\nuse crate::generated::types::*;`}</Code>
+              </Step>
+              <p className="text-zinc-600 pt-1">
+                Generated as a native Rust crate. Run <span className="text-zinc-500 font-mono">cargo build</span> to verify everything compiles.
+              </p>
+            </>
+          )}
+        </div>
+      </div>
     </div>
+  );
+}
+
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function Step({
+  n,
+  text,
+  children,
+}: {
+  n: number;
+  text: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <p>
+        <span className="text-zinc-500 font-medium">{n}.</span> {text}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+function Code({ children }: { children: string }) {
+  return (
+    <pre className="bg-zinc-900 border border-zinc-700/50 rounded-md px-3 py-2 font-mono text-zinc-300 overflow-x-auto whitespace-pre-wrap break-all leading-relaxed">
+      {children}
+    </pre>
   );
 }
 

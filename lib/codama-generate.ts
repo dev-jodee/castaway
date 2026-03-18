@@ -7,27 +7,10 @@ import JSZip from "jszip";
 import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import type { Language } from "./codama-types";
 
-export type Language = "typescript" | "typescript-umi" | "rust";
-
-export const LANGUAGES: { id: Language; label: string; description: string }[] =
-  [
-    {
-      id: "typescript",
-      label: "TypeScript",
-      description: "@solana/kit (web3.js v2)",
-    },
-    {
-      id: "typescript-umi",
-      label: "TypeScript Umi",
-      description: "Metaplex Umi framework",
-    },
-    {
-      id: "rust",
-      label: "Rust",
-      description: "Native Rust client",
-    },
-  ];
+export type { Language } from "./codama-types";
+export { LANGUAGES } from "./codama-types";
 
 function collectFiles(zip: JSZip, dirPath: string, basePath: string): void {
   const entries = fs.readdirSync(dirPath);

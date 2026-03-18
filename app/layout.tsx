@@ -15,7 +15,26 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Castaway — Solana IDL → SDK Generator",
   description:
-    "Fetch on-chain Anchor IDLs and generate TypeScript or Rust SDK clients using Codama.",
+    "Paste a Solana program ID, fetch its on-chain Anchor IDL, and download a fully-typed SDK client in TypeScript or Rust — powered by Codama.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL ?? "https://castaway.dev"
+  ),
+  openGraph: {
+    title: "Castaway — Solana IDL → SDK Generator",
+    description:
+      "Paste a Solana program ID, fetch its on-chain Anchor IDL, and download a fully-typed SDK client in TypeScript or Rust — powered by Codama.",
+    url: "/",
+    siteName: "Castaway",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Castaway — Solana IDL → SDK Generator",
+    description:
+      "Paste a Solana program ID, fetch its on-chain Anchor IDL, and download a fully-typed SDK client in TypeScript or Rust — powered by Codama.",
+    creator: "@dev_jodee",
+  },
 };
 
 export default function RootLayout({

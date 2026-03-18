@@ -1,6 +1,6 @@
 "use client";
 
-import { Language, LANGUAGES } from "@/lib/codama-generate";
+import { Language, LANGUAGES } from "@/lib/codama-types";
 
 interface LanguageSelectorProps {
   selected: Language;
