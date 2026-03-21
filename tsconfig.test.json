@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": ".test-dist",
+    "rootDir": ".",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "incremental": false,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["lib/**/*.ts", "test/**/*.ts"]
+}

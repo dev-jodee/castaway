@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Drift",
+    "programId": "dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH",
+    "description": "Drift Protocol — perpetuals DEX",
+    "category": "DeFi"
+  },
+  {
+    "name": "Marinade",
+    "programId": "MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD",
+    "description": "Marinade liquid staking",
+    "category": "Staking"
+  },
+  {
+    "name": "Jupiter",
+    "programId": "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+    "description": "Jupiter aggregator v6",
+    "category": "DeFi"
+  },
+  {
+    "name": "Marginfi",
+    "programId": "MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA",
+    "description": "marginfi lending protocol",
+    "category": "DeFi"
+  },
+  {
+    "name": "Meteora DLMM",
+    "programId": "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+    "description": "Meteora dynamic liquidity market maker",
+    "category": "DeFi"
+  },
+  {
+    "name": "Squads v4",
+    "programId": "SQDS4ep65T869zMMBKyuUq6aD6EgTu8psMjkvj52pCf",
+    "description": "Squads multisig v4",
+    "category": "Governance"
+  },
+  {
+    "name": "Bubblegum",
+    "programId": "BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY",
+    "description": "Metaplex Bubblegum compressed NFTs",
+    "category": "NFT"
+  }
+]
