@@ -39,7 +39,7 @@ type ProgramMetadataIdl = {
   idl: unknown;
 };
 
-type FetchIdlDeps = {
+export type FetchIdlDeps = {
   createRpc: (rpcUrl: string) => SolanaRpc;
   fetchAnchorIdlAccount: (
     rpc: SolanaRpc,
@@ -84,7 +84,9 @@ async function getAnchorIdlAddress(programId: string): Promise<string> {
   });
 }
 
-async function getProgramMetadataIdlAddress(programId: string): Promise<string> {
+async function getProgramMetadataIdlAddress(
+  programId: string
+): Promise<string> {
   const [metadataAddress] = await findMetadataPda({
     authority: null,
     program: address(programId),
@@ -121,7 +123,8 @@ function asError(error: unknown): Error {
 
 function isMissingIdlError(error: Error): boolean {
   return (
-    error instanceof MissingIdlError || error.message === NO_COMPATIBLE_IDL_MESSAGE
+    error instanceof MissingIdlError ||
+    error.message === NO_COMPATIBLE_IDL_MESSAGE
   );
 }
 
@@ -168,7 +171,10 @@ async function defaultFetchProgramMetadataIdl(
   programId: string
 ): Promise<ProgramMetadataIdl> {
   const accountAddress = await getProgramMetadataIdlAddress(programId);
-  const metadataAccount = await fetchEncodedAccount(rpc, address(accountAddress));
+  const metadataAccount = await fetchEncodedAccount(
+    rpc,
+    address(accountAddress)
+  );
 
   if (!metadataAccount.exists) {
     throw new MissingIdlError("program-metadata");

@@ -1,7 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { deflate } from "pako";
-import { decodeIdlAccountData, fetchIdlWithDeps } from "../lib/fetch-idl";
+import {
+  decodeIdlAccountData,
+  fetchIdlWithDeps,
+  type FetchIdlDeps,
+} from "../lib/fetch-idl";
 import type { IdlSource } from "../lib/idl-source";
 
 const PROGRAM_ID = "11111111111111111111111111111111";
@@ -30,7 +34,7 @@ function createFetchIdlDeps(input: {
   return {
     calls,
     deps: {
-      createRpc: () => ({}) as any,
+      createRpc: (() => ({})) as unknown as FetchIdlDeps["createRpc"],
       fetchAnchorIdlAccount: async () => {
         calls.push("anchor");
         if (input.anchorError) throw input.anchorError;
@@ -51,7 +55,10 @@ function createFetchIdlDeps(input: {
           idl: input.programMetadataIdl,
         };
       },
-      getLatestUpdateTimestamp: async (_rpc: unknown, accountAddress: string) => {
+      getLatestUpdateTimestamp: async (
+        _rpc: unknown,
+        accountAddress: string
+      ) => {
         if (accountAddress.startsWith("Anchor")) {
           return input.anchorUpdatedAt ?? null;
         }
@@ -87,12 +94,7 @@ test("fetchIdlWithDeps uses the Anchor path when idlSource=anchor", async () => 
     anchorData: encodeAnchorIdlAccountData(anchorIdl),
   });
 
-  const idl = await fetchIdlWithDeps(
-    PROGRAM_ID,
-    undefined,
-    "anchor",
-    deps
-  );
+  const idl = await fetchIdlWithDeps(PROGRAM_ID, undefined, "anchor", deps);
 
   assert.deepEqual(idl, anchorIdl);
   assert.deepEqual(calls, ["anchor"]);
@@ -162,8 +164,12 @@ test("fetchIdlWithDeps falls back to Anchor when program metadata is missing in 
 
 test("fetchIdlWithDeps propagates a real error when auto mode has no usable IDL", async () => {
   const { deps } = createFetchIdlDeps({
-    anchorError: new Error("No compatible on-chain IDL was found for this program."),
-    programMetadataError: new Error("Program metadata account exists but could not be parsed."),
+    anchorError: new Error(
+      "No compatible on-chain IDL was found for this program."
+    ),
+    programMetadataError: new Error(
+      "Program metadata account exists but could not be parsed."
+    ),
   });
 
   await assert.rejects(
@@ -174,7 +180,9 @@ test("fetchIdlWithDeps propagates a real error when auto mode has no usable IDL"
 
 test("fetchIdlWithDeps returns the generic not-found error when neither source exists in auto mode", async () => {
   const { deps } = createFetchIdlDeps({
-    anchorError: new Error("No compatible on-chain IDL was found for this program."),
+    anchorError: new Error(
+      "No compatible on-chain IDL was found for this program."
+    ),
     programMetadataError: new Error(
       "No compatible on-chain IDL was found for this program."
     ),
