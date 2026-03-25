@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchIdl, DEFAULT_RPC_URL } from "@/lib/fetch-idl";
+import { getIdlSourceFromSearchParams, type IdlSource } from "@/lib/idl-source";
 import { ProgramIdInput } from "@/components/ProgramIdInput";
 import { PresetSelector } from "@/components/PresetSelector";
 import { IdlViewer } from "@/components/IdlViewer";
@@ -10,6 +11,7 @@ import { BrandIcon } from "@/components/BrandIcon";
 
 export default function Home() {
   const [programId, setProgramId] = useState("");
+  const [idlSource, setIdlSource] = useState<IdlSource>("auto");
   const [rpcUrl, setRpcUrl] = useState(DEFAULT_RPC_URL);
   const [showRpc, setShowRpc] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,18 +20,26 @@ export default function Home() {
 
   // Accept an optional explicit ID so we can call this from the URL-state
   // effect before React has flushed the programId state update.
-  async function handleFetch(explicitId?: string) {
+  async function handleFetch(explicitId?: string, explicitSource?: IdlSource) {
     const nextProgramId =
       typeof explicitId === "string" ? explicitId : programId;
+    const nextIdlSource =
+      typeof explicitSource === "string" ? explicitSource : idlSource;
     const id = nextProgramId.trim();
     if (!id) return;
 
     // Sync input state if we were called with an explicit ID (e.g. from URL)
     if (typeof explicitId === "string") setProgramId(explicitId);
+    if (typeof explicitSource === "string") setIdlSource(explicitSource);
 
     // Persist the program ID in the URL so the result is shareable
     const url = new URL(window.location.href);
     url.searchParams.set("program", id);
+    if (nextIdlSource === "auto") {
+      url.searchParams.delete("idlSource");
+    } else {
+      url.searchParams.set("idlSource", nextIdlSource);
+    }
     window.history.replaceState(null, "", url.toString());
 
     setLoading(true);
@@ -41,13 +51,13 @@ export default function Home() {
 
       if (rpcUrl !== DEFAULT_RPC_URL) {
         // Custom RPC: call directly from the browser so the URL never leaves the client
-        result = await fetchIdl(id, rpcUrl);
+        result = await fetchIdl(id, rpcUrl, nextIdlSource);
       } else {
         // Default: let the server use its configured RPC
         const res = await fetch("/api/fetch-idl", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ programId: id }),
+          body: JSON.stringify({ programId: id, idlSource: nextIdlSource }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to fetch IDL");
@@ -66,8 +76,9 @@ export default function Home() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const program = params.get("program");
+    const nextIdlSource = getIdlSourceFromSearchParams(params);
     if (program?.trim()) {
-      handleFetch(program.trim());
+      handleFetch(program.trim(), nextIdlSource);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

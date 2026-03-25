@@ -18,6 +18,7 @@
     "@codama/renderers-js-umi": "^1.1.24",
     "@codama/renderers-rust": "^3.0.0",
     "@limechain/codama-dart": "^0.1.1",
+    "@solana-program/program-metadata": "^0.5.1",
     "@solana/kit": "^6.3.1",
     "@vercel/analytics": "^2.0.1",
     "codama": "^1.5.1",

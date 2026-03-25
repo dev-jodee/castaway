@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchIdl, DEFAULT_RPC_URL } from "@/lib/fetch-idl";
+import { isIdlSource, type IdlSource } from "@/lib/idl-source";
 import { rateLimit, getIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { programId?: string };
+  let body: { idlSource?: string; programId?: string };
   try {
     body = await req.json();
   } catch {
@@ -30,6 +31,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { programId } = body;
+  const idlSource: IdlSource =
+    body.idlSource == null ? "auto" : body.idlSource;
 
   if (!programId || typeof programId !== "string") {
     return NextResponse.json(
@@ -38,10 +41,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (!isIdlSource(idlSource)) {
+    return NextResponse.json(
+      { error: "Missing or invalid `idlSource` field" },
+      { status: 400 }
+    );
+  }
+
   const resolvedRpcUrl = process.env.SOLANA_RPC_URL || DEFAULT_RPC_URL;
 
   try {
-    const idl = await fetchIdl(programId.trim(), resolvedRpcUrl);
+    const idl = await fetchIdl(programId.trim(), resolvedRpcUrl, idlSource);
     return NextResponse.json(
       { idl },
       { headers: { "X-RateLimit-Remaining": String(remaining) } }
