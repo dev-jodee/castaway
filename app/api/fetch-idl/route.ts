@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchIdl, DEFAULT_RPC_URL } from "@/lib/fetch-idl";
-import { isIdlSource, type IdlSource } from "@/lib/idl-source";
+import { isIdlSource } from "@/lib/idl-source";
 import { rateLimit, getIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -31,8 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { programId } = body;
-  const idlSource: IdlSource =
-    body.idlSource == null ? "auto" : body.idlSource;
+  const idlSource = body.idlSource == null ? "auto" : body.idlSource;
 
   if (!programId || typeof programId !== "string") {
     return NextResponse.json(
