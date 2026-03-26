@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 import type { Language } from "./codama-types";
+import { assertLanguageSupportedForIdl } from "./codama-compat";
 import { getCodamaRootNode, getIdlProgramName } from "./idl-utils";
 
 export type { Language } from "./codama-types";
@@ -39,6 +40,8 @@ export async function generateFromIdl(
   const programName = getIdlProgramName(idl);
 
   try {
+    assertLanguageSupportedForIdl(idl, language);
+
     const codamaRoot = getCodamaRootNode(idl);
     const rootNode = codamaRoot
       ? (codamaRoot as unknown as Parameters<typeof createFromRoot>[0])

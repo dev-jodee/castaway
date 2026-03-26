@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { getAllLanguageCompatibility } from "@/lib/codama-compat";
 import { Language } from "@/lib/codama-types";
 import { getIdlProgramName } from "@/lib/idl-utils";
 import { LanguageSelector } from "./LanguageSelector";
@@ -17,8 +18,19 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
   const [downloaded, setDownloaded] = useState(false);
 
   const programName = getIdlProgramName(idl);
+  const compatibility = getAllLanguageCompatibility(idl);
+  const selectedCompatibility = compatibility[language];
+  const unavailableLanguages = Object.entries(compatibility).filter(
+    ([, value]) => !value.supported
+  );
 
   async function handleGenerate() {
+    if (!selectedCompatibility.supported) {
+      setError(selectedCompatibility.reason ?? "Generation failed");
+      setDownloaded(false);
+      return;
+    }
+
     setGenerating(true);
     setError(null);
     setDownloaded(false);
@@ -58,13 +70,26 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
         <h2 className="text-sm font-semibold text-zinc-300 mb-3">
           Generate SDK Client
         </h2>
-        <LanguageSelector selected={language} onChange={setLanguage} />
+        <LanguageSelector
+          selected={language}
+          onChange={setLanguage}
+          availability={compatibility}
+        />
       </div>
+
+      {unavailableLanguages.length > 0 && (
+        <p className="text-amber-400 text-xs">
+          Some generators are unavailable for this IDL.{" "}
+          {unavailableLanguages
+            .map(([languageId, value]) => `${languageId}: ${value.reason}`)
+            .join(" ")}
+        </p>
+      )}
 
       <div className="flex items-center justify-center gap-3">
         <button
           onClick={handleGenerate}
-          disabled={generating}
+          disabled={generating || !selectedCompatibility.supported}
           className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white text-sm font-medium rounded-lg transition-colors"
         >
           {generating ? (

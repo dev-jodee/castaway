@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateFromIdl, Language, LANGUAGES } from "@/lib/codama-generate";
+import { getLanguageCompatibility } from "@/lib/codama-compat";
 import { rateLimit, getIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -69,6 +70,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const compatibility = getLanguageCompatibility(
+      idl as Record<string, unknown>,
+      language as Language
+    );
+    if (!compatibility.supported) {
+      return NextResponse.json(
+        { error: compatibility.reason },
+        { status: 422 }
+      );
+    }
+
     const zipBuffer = await generateFromIdl(
       idl as Record<string, unknown>,
       language as Language
