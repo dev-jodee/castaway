@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { getAllLanguageCompatibility } from "@/lib/codama-compat";
 import { Language } from "@/lib/codama-types";
+import { getIdlProgramName } from "@/lib/idl-utils";
 import { LanguageSelector } from "./LanguageSelector";
 
 interface GeneratePanelProps {
@@ -15,16 +17,17 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [downloaded, setDownloaded] = useState(false);
 
-  const programName =
-    typeof idl.name === "string"
-      ? idl.name
-      : typeof idl.metadata === "object" &&
-          idl.metadata !== null &&
-          "name" in idl.metadata
-        ? String((idl.metadata as Record<string, unknown>).name)
-        : "program";
+  const programName = getIdlProgramName(idl);
+  const compatibility = getAllLanguageCompatibility(idl);
+  const selectedCompatibility = compatibility[language];
 
   async function handleGenerate() {
+    if (!selectedCompatibility.supported) {
+      setError(selectedCompatibility.reason ?? "Generation failed");
+      setDownloaded(false);
+      return;
+    }
+
     setGenerating(true);
     setError(null);
     setDownloaded(false);
@@ -64,13 +67,17 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
         <h2 className="text-sm font-semibold text-zinc-300 mb-3">
           Generate SDK Client
         </h2>
-        <LanguageSelector selected={language} onChange={setLanguage} />
+        <LanguageSelector
+          selected={language}
+          onChange={setLanguage}
+          availability={compatibility}
+        />
       </div>
 
       <div className="flex items-center justify-center gap-3">
         <button
           onClick={handleGenerate}
-          disabled={generating}
+          disabled={generating || !selectedCompatibility.supported}
           className="flex items-center gap-2 px-5 py-2.5 bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white text-sm font-medium rounded-lg transition-colors"
         >
           {generating ? (

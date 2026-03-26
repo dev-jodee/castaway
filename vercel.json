@@ -2,7 +2,7 @@
   "regions": ["iad1"],
   "git": {
     "deploymentEnabled": {
-      "main": false
+      "main": true
     }
   }
 }
