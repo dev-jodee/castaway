@@ -20,9 +20,6 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
   const programName = getIdlProgramName(idl);
   const compatibility = getAllLanguageCompatibility(idl);
   const selectedCompatibility = compatibility[language];
-  const unavailableLanguages = Object.entries(compatibility).filter(
-    ([, value]) => !value.supported
-  );
 
   async function handleGenerate() {
     if (!selectedCompatibility.supported) {
@@ -76,15 +73,6 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
           availability={compatibility}
         />
       </div>
-
-      {unavailableLanguages.length > 0 && (
-        <p className="text-amber-400 text-xs">
-          Some generators are unavailable for this IDL.{" "}
-          {unavailableLanguages
-            .map(([languageId, value]) => `${languageId}: ${value.reason}`)
-            .join(" ")}
-        </p>
-      )}
 
       <div className="flex items-center justify-center gap-3">
         <button
