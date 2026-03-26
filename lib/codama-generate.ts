@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 import type { Language } from "./codama-types";
+import { getCodamaRootNode, getIdlProgramName } from "./idl-utils";
 
 export type { Language } from "./codama-types";
 export { LANGUAGES } from "./codama-types";
@@ -35,17 +36,13 @@ export async function generateFromIdl(
   const tmpDir = path.join("/tmp", `castaway-${randomUUID()}`);
   fs.mkdirSync(tmpDir, { recursive: true });
 
-  const programName =
-    typeof idl.name === "string"
-      ? idl.name
-      : typeof idl.metadata === "object" &&
-          idl.metadata !== null &&
-          "name" in (idl.metadata as Record<string, unknown>)
-        ? String((idl.metadata as Record<string, unknown>).name)
-        : "program";
+  const programName = getIdlProgramName(idl);
 
   try {
-    const rootNode = rootNodeFromAnchor(idl as AnchorIdl);
+    const codamaRoot = getCodamaRootNode(idl);
+    const rootNode = codamaRoot
+      ? (codamaRoot as unknown as Parameters<typeof createFromRoot>[0])
+      : rootNodeFromAnchor(idl as AnchorIdl);
     const codama = createFromRoot(rootNode);
 
     switch (language) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { getIdlDisplayInfo } from "@/lib/idl-utils";
 
 interface IdlViewerProps {
   idl: Record<string, unknown>;
@@ -15,31 +16,8 @@ export function IdlViewer({ idl }: IdlViewerProps) {
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const name =
-    typeof idl.name === "string"
-      ? idl.name
-      : typeof idl.metadata === "object" &&
-          idl.metadata !== null &&
-          "name" in idl.metadata
-        ? String((idl.metadata as Record<string, unknown>).name)
-        : "Unknown";
-
-  const version =
-    typeof idl.version === "string"
-      ? idl.version
-      : typeof idl.metadata === "object" &&
-          idl.metadata !== null &&
-          "version" in idl.metadata
-        ? String((idl.metadata as Record<string, unknown>).version)
-        : "?";
-
-  const address = typeof idl.address === "string" ? idl.address : null;
-
-  const instructionCount = Array.isArray(idl.instructions)
-    ? idl.instructions.length
-    : 0;
-  const accountCount = Array.isArray(idl.accounts) ? idl.accounts.length : 0;
-  const typeCount = Array.isArray(idl.types) ? idl.types.length : 0;
+  const { accountCount, address, instructionCount, name, typeCount, version } =
+    getIdlDisplayInfo(idl);
   const isLargeIdl = instructionCount >= LARGE_IDL_INSTRUCTION_THRESHOLD;
   const shouldHighlight =
     json.length > 0 && json.length <= LARGE_IDL_JSON_BYTES_THRESHOLD;

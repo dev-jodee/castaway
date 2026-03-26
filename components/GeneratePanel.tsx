@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Language } from "@/lib/codama-types";
+import { getIdlProgramName } from "@/lib/idl-utils";
 import { LanguageSelector } from "./LanguageSelector";
 
 interface GeneratePanelProps {
@@ -15,14 +16,7 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [downloaded, setDownloaded] = useState(false);
 
-  const programName =
-    typeof idl.name === "string"
-      ? idl.name
-      : typeof idl.metadata === "object" &&
-          idl.metadata !== null &&
-          "name" in idl.metadata
-        ? String((idl.metadata as Record<string, unknown>).name)
-        : "program";
+  const programName = getIdlProgramName(idl);
 
   async function handleGenerate() {
     setGenerating(true);
