@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import { fetchIdl, DEFAULT_RPC_URL } from "@/lib/fetch-idl";
 import { getIdlSourceFromSearchParams, type IdlSource } from "@/lib/idl-source";
+import {
+  DEFAULT_NETWORK,
+  getNetworkFromSearchParams,
+  getNetworkRpcUrl,
+  type Network,
+} from "@/lib/network";
 import { ProgramIdInput } from "@/components/ProgramIdInput";
 import { PresetSelector } from "@/components/PresetSelector";
 import { IdlViewer } from "@/components/IdlViewer";
@@ -12,6 +18,7 @@ import { BrandIcon } from "@/components/BrandIcon";
 export default function Home() {
   const [programId, setProgramId] = useState("");
   const [idlSource, setIdlSource] = useState<IdlSource>("auto");
+  const [network, setNetwork] = useState<Network>(DEFAULT_NETWORK);
   const [rpcUrl, setRpcUrl] = useState(DEFAULT_RPC_URL);
   const [showRpc, setShowRpc] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -20,17 +27,27 @@ export default function Home() {
 
   // Accept an optional explicit ID so we can call this from the URL-state
   // effect before React has flushed the programId state update.
-  async function handleFetch(explicitId?: string, explicitSource?: IdlSource) {
+  async function handleFetch(
+    explicitId?: string,
+    explicitSource?: IdlSource,
+    explicitNetwork?: Network
+  ) {
     const nextProgramId =
       typeof explicitId === "string" ? explicitId : programId;
     const nextIdlSource =
       typeof explicitSource === "string" ? explicitSource : idlSource;
+    const nextNetwork =
+      typeof explicitNetwork === "string" ? explicitNetwork : network;
     const id = nextProgramId.trim();
     if (!id) return;
 
     // Sync input state if we were called with an explicit ID (e.g. from URL)
     if (typeof explicitId === "string") setProgramId(explicitId);
     if (typeof explicitSource === "string") setIdlSource(explicitSource);
+    if (typeof explicitNetwork === "string") {
+      setNetwork(explicitNetwork);
+      setRpcUrl(getNetworkRpcUrl(explicitNetwork));
+    }
 
     // Persist the program ID in the URL so the result is shareable
     const url = new URL(window.location.href);
@@ -40,6 +57,11 @@ export default function Home() {
     } else {
       url.searchParams.set("idlSource", nextIdlSource);
     }
+    if (nextNetwork === DEFAULT_NETWORK) {
+      url.searchParams.delete("network");
+    } else {
+      url.searchParams.set("network", nextNetwork);
+    }
     window.history.replaceState(null, "", url.toString());
 
     setLoading(true);
@@ -48,16 +70,22 @@ export default function Home() {
 
     try {
       let result: unknown;
+      const defaultRpcUrl = getNetworkRpcUrl(nextNetwork);
+      const usingCustomRpc = showRpc && rpcUrl.trim() !== defaultRpcUrl;
 
-      if (rpcUrl !== DEFAULT_RPC_URL) {
+      if (usingCustomRpc) {
         // Custom RPC: call directly from the browser so the URL never leaves the client
         result = await fetchIdl(id, rpcUrl, nextIdlSource);
       } else {
-        // Default: let the server use its configured RPC
+        // Default: let the server use the official Solana RPC for the selected network
         const res = await fetch("/api/fetch-idl", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ programId: id, idlSource: nextIdlSource }),
+          body: JSON.stringify({
+            programId: id,
+            idlSource: nextIdlSource,
+            network: nextNetwork,
+          }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to fetch IDL");
@@ -77,8 +105,11 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search);
     const program = params.get("program");
     const nextIdlSource = getIdlSourceFromSearchParams(params);
+    const nextNetwork = getNetworkFromSearchParams(params);
+    setNetwork(nextNetwork);
+    setRpcUrl(getNetworkRpcUrl(nextNetwork));
     if (program?.trim()) {
-      handleFetch(program.trim(), nextIdlSource);
+      handleFetch(program.trim(), nextIdlSource, nextNetwork);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -136,9 +167,8 @@ export default function Home() {
               />
               <p className="text-xs text-zinc-500">
                 Custom RPC requests are sent directly from your browser. The
-                server only uses{" "}
-                <code className="font-mono">SOLANA_RPC_URL</code> when fetching
-                through the default API route.
+                default API route uses the official Solana RPC for the selected{" "}
+                <code className="font-mono">network</code> URL parameter.
               </p>
             </div>
           )}

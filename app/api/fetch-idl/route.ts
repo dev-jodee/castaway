@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchIdl, DEFAULT_RPC_URL } from "@/lib/fetch-idl";
+import { fetchIdl } from "@/lib/fetch-idl";
 import { isIdlSource } from "@/lib/idl-source";
+import { getNetworkRpcUrl, isNetwork, type Network } from "@/lib/network";
 import { rateLimit, getIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { idlSource?: string; programId?: string };
+  let body: { idlSource?: string; network?: string; programId?: string };
   try {
     body = await req.json();
   } catch {
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
 
   const { programId } = body;
   const idlSource = body.idlSource == null ? "auto" : body.idlSource;
+  const network = body.network == null ? "mainnet-beta" : body.network;
 
   if (!programId || typeof programId !== "string") {
     return NextResponse.json(
@@ -47,7 +49,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const resolvedRpcUrl = process.env.SOLANA_RPC_URL || DEFAULT_RPC_URL;
+  if (!isNetwork(network)) {
+    return NextResponse.json(
+      { error: "Missing or invalid `network` field" },
+      { status: 400 }
+    );
+  }
+
+  const resolvedRpcUrl = getNetworkRpcUrl(network as Network);
 
   try {
     const idl = await fetchIdl(programId.trim(), resolvedRpcUrl, idlSource);

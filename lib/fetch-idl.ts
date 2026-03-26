@@ -11,8 +11,8 @@ import {
 } from "@solana-program/program-metadata";
 import { inflate } from "pako";
 import type { ExplicitIdlSource, IdlSource } from "./idl-source";
-
-export const DEFAULT_RPC_URL = "https://api.mainnet-beta.solana.com";
+export { DEFAULT_RPC_URL } from "./network";
+import { DEFAULT_RPC_URL } from "./network";
 
 const NO_COMPATIBLE_IDL_MESSAGE =
   "No compatible on-chain IDL was found for this program. The IDL may not have been uploaded, or the program may use an unsupported IDL layout.";
