@@ -117,6 +117,44 @@ test("fetchIdlWithDeps uses the program metadata path when idlSource=program-met
   assert.deepEqual(calls, ["program-metadata"]);
 });
 
+test("fetchIdlWithDeps parses JSON-string program metadata IDLs", async () => {
+  const programMetadataIdl = JSON.stringify({
+    metadata: { name: "pmp-json" },
+    instructions: [],
+  });
+  const { deps } = createFetchIdlDeps({
+    programMetadataIdl,
+  });
+
+  const idl = await fetchIdlWithDeps(
+    PROGRAM_ID,
+    undefined,
+    "program-metadata",
+    deps
+  );
+
+  assert.deepEqual(idl, {
+    metadata: { name: "pmp-json" },
+    instructions: [],
+  });
+});
+
+test("fetchIdlWithDeps leaves non-JSON program metadata strings unchanged", async () => {
+  const programMetadataIdl = "plain-text-idl";
+  const { deps } = createFetchIdlDeps({
+    programMetadataIdl,
+  });
+
+  const idl = await fetchIdlWithDeps(
+    PROGRAM_ID,
+    undefined,
+    "program-metadata",
+    deps
+  );
+
+  assert.equal(idl, programMetadataIdl);
+});
+
 test("fetchIdlWithDeps prefers the newer source in auto mode", async () => {
   const anchorIdl = { metadata: { name: "anchor" } };
   const programMetadataIdl = { metadata: { name: "pmp" } };

@@ -121,6 +121,26 @@ function asError(error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
+function normalizeProgramMetadataIdl(idl: unknown): unknown {
+  if (typeof idl !== "string") {
+    return idl;
+  }
+
+  const trimmed = idl.trim();
+  if (
+    !(trimmed.startsWith("{") && trimmed.endsWith("}")) &&
+    !(trimmed.startsWith("[") && trimmed.endsWith("]"))
+  ) {
+    return idl;
+  }
+
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return idl;
+  }
+}
+
 function isMissingIdlError(error: Error): boolean {
   return (
     error instanceof MissingIdlError ||
@@ -182,7 +202,9 @@ async function defaultFetchProgramMetadataIdl(
 
   return {
     accountAddress,
-    idl: await fetchAndParseMetadataContent(rpc, address(programId), "idl"),
+    idl: normalizeProgramMetadataIdl(
+      await fetchAndParseMetadataContent(rpc, address(programId), "idl")
+    ),
   };
 }
 
@@ -245,7 +267,7 @@ async function loadProgramMetadataCandidate(
 
     return {
       accountAddress: result.accountAddress,
-      idl: result.idl,
+      idl: normalizeProgramMetadataIdl(result.idl),
       source: "program-metadata",
       updatedAt,
     };
@@ -266,7 +288,7 @@ async function fetchFromExplicitSource(
   }
 
   const result = await deps.fetchProgramMetadataIdl(rpc, programId);
-  return result.idl;
+  return normalizeProgramMetadataIdl(result.idl);
 }
 
 function getAutoFetchError(
