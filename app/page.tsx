@@ -106,6 +106,9 @@ export default function Home() {
     const program = params.get("program");
     const nextIdlSource = getIdlSourceFromSearchParams(params);
     const nextNetwork = getNetworkFromSearchParams(params);
+    // Hydrate state from the URL after mount; a render-time initializer can't
+    // read window on the server without a hydration mismatch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNetwork(nextNetwork);
     setRpcUrl(getNetworkRpcUrl(nextNetwork));
     if (program?.trim()) {

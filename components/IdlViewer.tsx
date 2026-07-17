@@ -11,31 +11,25 @@ const LARGE_IDL_INSTRUCTION_THRESHOLD = 100;
 const LARGE_IDL_JSON_BYTES_THRESHOLD = 75_000;
 
 export function IdlViewer({ idl }: IdlViewerProps) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [json, setJson] = useState("");
-  const [highlighted, setHighlighted] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-
   const { accountCount, address, instructionCount, name, typeCount, version } =
     getIdlDisplayInfo(idl);
   const isLargeIdl = instructionCount >= LARGE_IDL_INSTRUCTION_THRESHOLD;
+
+  const [collapsed, setCollapsed] = useState(isLargeIdl);
+  const [prevIdl, setPrevIdl] = useState(idl);
+  const [copied, setCopied] = useState(false);
+  const [hl, setHl] = useState<{ src: string; html: string } | null>(null);
+
+  // Re-collapse when a new IDL arrives: adjust state during render, not in an effect.
+  if (idl !== prevIdl) {
+    setPrevIdl(idl);
+    setCollapsed(isLargeIdl);
+  }
+
+  const json = collapsed ? "" : JSON.stringify(idl, null, 2);
   const shouldHighlight =
     json.length > 0 && json.length <= LARGE_IDL_JSON_BYTES_THRESHOLD;
-
-  useEffect(() => {
-    setCollapsed(isLargeIdl);
-  }, [idl, isLargeIdl]);
-
-  useEffect(() => {
-    if (collapsed) {
-      setJson("");
-      setHighlighted(null);
-      return;
-    }
-
-    setJson(JSON.stringify(idl, null, 2));
-    setHighlighted(null);
-  }, [idl, collapsed]);
+  const highlighted = hl && hl.src === json ? hl.html : null;
 
   // Lazily syntax-highlight with shiki; fall back to plain text until ready.
   useEffect(() => {
@@ -47,7 +41,7 @@ export function IdlViewer({ idl }: IdlViewerProps) {
         codeToHtml(json, { lang: "json", theme: "github-dark-dimmed" })
       )
       .then((html) => {
-        if (!cancelled) setHighlighted(html);
+        if (!cancelled) setHl({ src: json, html });
       })
       .catch(() => {
         /* silently fall back to plain text */
