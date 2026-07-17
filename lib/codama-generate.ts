@@ -9,14 +9,6 @@ import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
 import { createRequire } from "module";
-
-// codama-renderers-dart@0.4.x mispublishes its exports map: the `import` condition
-// points at a .mjs absent from the tarball. Load the working CJS build via require.
-// Anchor on cwd rather than import.meta.url so this also compiles under the CJS test build.
-const renderDart: typeof import("codama-renderers-dart").renderVisitor =
-  createRequire(path.join(process.cwd(), "package.json"))(
-    "codama-renderers-dart"
-  ).renderVisitor;
 import type { Language } from "./codama-types";
 import { assertLanguageSupportedForIdl } from "./codama-compat";
 import { getCodamaRootNode, getIdlProgramName } from "./idl-utils";
@@ -99,6 +91,13 @@ export async function generateFromIdl(
       case "dart": {
         const dartDir = path.join(tmpDir, `${programName}-dart-client`);
         fs.mkdirSync(dartDir, { recursive: true });
+        // codama-renderers-dart@0.4.x mispublishes its ESM entry (exports `import` -> a
+        // .mjs absent from the tarball); load the working CJS build lazily here so a
+        // resolution failure can't break the other renderers at module load time.
+        const renderDart = createRequire(
+          path.join(process.cwd(), "package.json")
+        )("codama-renderers-dart")
+          .renderVisitor as typeof import("codama-renderers-dart").renderVisitor;
         codama.accept(
           renderDart(dartDir, {
             formatCode: false,
