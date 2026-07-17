@@ -24,10 +24,16 @@ const nextConfig: NextConfig = {
     "memfs",
   ],
 
-  // codama-renderers-dart's broken exports map defeats Next's dependency tracer, so its
-  // files are missing from the serverless bundle. Force-include them for the generate route.
+  // codama-renderers-dart's broken exports map defeats Next's dependency tracer, so it and
+  // its dependency closure are missing from the serverless bundle. Force-include the ESM
+  // build's deps (dart + the codama/solana/noble packages it imports) for the generate route.
   outputFileTracingIncludes: {
-    "/api/generate": ["./node_modules/codama-renderers-dart/**/*"],
+    "/api/generate": [
+      "./node_modules/codama-renderers-dart/**/*",
+      "./node_modules/@codama/**/*",
+      "./node_modules/@solana/**/*",
+      "./node_modules/@noble/**/*",
+    ],
   },
 
   async headers() {
