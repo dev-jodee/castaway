@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getIdlDisplayInfo } from "@/lib/idl-utils";
 
 interface IdlViewerProps {
@@ -26,7 +26,10 @@ export function IdlViewer({ idl }: IdlViewerProps) {
     setCollapsed(isLargeIdl);
   }
 
-  const json = collapsed ? "" : JSON.stringify(idl, null, 2);
+  const json = useMemo(
+    () => (collapsed ? "" : JSON.stringify(idl, null, 2)),
+    [collapsed, idl]
+  );
   const shouldHighlight =
     json.length > 0 && json.length <= LARGE_IDL_JSON_BYTES_THRESHOLD;
   const highlighted = hl && hl.src === json ? hl.html : null;
