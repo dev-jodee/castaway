@@ -1,4 +1,9 @@
-export type Language = "typescript" | "typescript-umi" | "rust" | "go";
+export type Language =
+  | "typescript"
+  | "typescript-umi"
+  | "rust"
+  | "go"
+  | "dart";
 
 export const LANGUAGES: { id: Language; label: string; description: string }[] =
   [
@@ -21,5 +26,10 @@ export const LANGUAGES: { id: Language; label: string; description: string }[] =
       id: "go",
       label: "Go",
       description: "Native Go client",
+    },
+    {
+      id: "dart",
+      label: "Dart",
+      description: "Native Dart client (solana_kit)",
     },
   ];

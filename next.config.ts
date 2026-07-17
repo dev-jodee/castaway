@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
     "@codama/renderers-js-umi",
     "@codama/renderers-rust",
     "@codama/renderers-go",
+    "codama-renderers-dart",
     "memfs",
   ],
 
