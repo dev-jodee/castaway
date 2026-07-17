@@ -1,9 +1,4 @@
-export type Language =
-  | "typescript"
-  | "typescript-umi"
-  | "rust"
-  | "go"
-  | "dart";
+export type Language = "typescript" | "typescript-umi" | "rust" | "go" | "dart";
 
 export const LANGUAGES: { id: Language; label: string; description: string }[] =
   [
