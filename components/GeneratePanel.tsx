@@ -233,6 +233,32 @@ export function GeneratePanel({ idl, programId }: GeneratePanelProps) {
               </p>
             </>
           )}
+          {language === "dart" && (
+            <>
+              <Step
+                n={1}
+                text="Unzip the download. The output is a folder of Dart sources with a top-level barrel file that re-exports the instructions, PDAs, errors, and program constants."
+              />
+              <Step
+                n={2}
+                text="Copy the folder into your Dart or Flutter project's lib/, then add the solana_kit packages the generated code imports (solana_kit_addresses, solana_kit_instructions, solana_kit_codecs_*, and meta) to your pubspec.yaml and fetch them:"
+              >
+                <Code>{`dart pub get`}</Code>
+              </Step>
+              <Step
+                n={3}
+                text="Import the barrel file and use the exported instruction builders, account/PDA helpers, and program constants."
+              >
+                <Code>{`import 'generated/${programName}.dart';`}</Code>
+              </Step>
+              <p className="text-zinc-600 pt-1">
+                Generated as native <span className="text-zinc-500">Dart</span>{" "}
+                sources targeting the solana_kit SDK. No pubspec.yaml is emitted
+                — add the solana_kit dependencies to your project manifest
+                yourself.
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>

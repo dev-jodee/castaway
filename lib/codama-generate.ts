@@ -8,6 +8,7 @@ import JSZip from "jszip";
 import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import { pathToFileURL } from "url";
 import type { Language } from "./codama-types";
 import { assertLanguageSupportedForIdl } from "./codama-compat";
 import { getCodamaRootNode, getIdlProgramName } from "./idl-utils";
@@ -81,6 +82,31 @@ export async function generateFromIdl(
         fs.mkdirSync(goDir, { recursive: true });
         codama.accept(
           renderGo(goDir, {
+            formatCode: false,
+            deleteFolderBeforeRendering: false,
+          })
+        );
+        break;
+      }
+      case "dart": {
+        const dartDir = path.join(tmpDir, `${programName}-dart-client`);
+        fs.mkdirSync(dartDir, { recursive: true });
+        // codama-renderers-dart@0.4.x mispublishes its exports map: `import` points at a
+        // missing .mjs, and its CJS build drags in a large @codama/@solana/.cjs tree Next
+        // never bundles. Import the real ESM build by path (bundler-ignored so Turbopack
+        // leaves it as a runtime import) so it reuses the already-bundled .mjs deps the
+        // other renderers rely on. Lazy so any failure only affects dart.
+        const dartEntry = pathToFileURL(
+          path.join(
+            process.cwd(),
+            "node_modules/codama-renderers-dart/dist/index.node.js"
+          )
+        ).href;
+        const { renderVisitor: renderDart } = (await import(
+          /* webpackIgnore: true */ /* turbopackIgnore: true */ dartEntry
+        )) as typeof import("codama-renderers-dart");
+        codama.accept(
+          renderDart(dartDir, {
             formatCode: false,
             deleteFolderBeforeRendering: false,
           })
